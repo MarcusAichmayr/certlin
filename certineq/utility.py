@@ -53,7 +53,7 @@ def solve_without_division(matrix: Matrix, rhs: vector) -> vector:
         sage: solve_without_division(M, rhs)
         (1, 0, 0)
     """
-    for ev in ElementaryVectors(Matrix.block([[matrix, Matrix.column(rhs)]])).generator(reverse=True):
+    for ev in ElementaryVectors(Matrix.block([[matrix, Matrix.column(rhs)]])).circuit_generator(reverse=True):
         if ev[-1] != 0:
             return -sign(ev[-1]) * ev[:-1]
     raise ValueError("No elementary vector with nonzero last component found. Is there a solution?")

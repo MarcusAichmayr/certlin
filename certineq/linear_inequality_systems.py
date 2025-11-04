@@ -263,9 +263,9 @@ class LinearInequalitySystem(SageObject):
         r"""Return a generator of elementary vectors."""
         if random:
             while True:
-                yield self._evs.random_element(kernel=kernel)
+                yield self._evs.random_circuit() if kernel else self._evs.random_cocircuit()
         else:
-            yield from self._evs.generator(kernel=kernel, reverse=reverse)
+            yield from self._evs.circuit_generator(reverse=reverse) if kernel else self._evs.cocircuit_generator(reverse=reverse)
 
     def _exists_orthogonal_vector(self, v: vector) -> bool:
         r"""Check if an orthogonal vector exists in the intervals."""
