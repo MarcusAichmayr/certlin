@@ -373,6 +373,8 @@ class Interval(SageObject):
             sage: from certlin import *
             sage: Interval.random() # random
             (-1, 1)
+            sage: Interval.random(ring=ZZ) # random
+            [-5, 3]
         """
         if allow_infinity and getrandbits(3) == 0:
             lower = minus_infinity
