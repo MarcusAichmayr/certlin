@@ -1,4 +1,4 @@
-r"""Finding vectors with components in intervals"""
+r"""Certifying linear inequality systems"""
 
 #############################################################################
 #  Copyright (C) 2025                                                       #
