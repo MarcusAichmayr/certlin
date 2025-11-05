@@ -27,6 +27,11 @@ We consider another system::
     sage: upper_bounds_closed = [False, False, False, True]
     sage: I = Intervals.from_bounds(lower_bounds, upper_bounds, lower_bounds_closed, upper_bounds_closed)
     sage: S = LinearInequalitySystem(M, I)
+    sage: S
+    [1 0]
+    [0 1]
+    [1 1]
+    [0 1] x in [2, 5) x [5, +oo) x (0, 8) x (-oo, 5]
     sage: S.find_solution()
     (5/2, 5)
     sage: S.certify()
