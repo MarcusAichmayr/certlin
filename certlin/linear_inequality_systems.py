@@ -148,6 +148,9 @@ class LinearInequalitySystem(SageObject):
             for row_str, interval in zip(str(self.matrix).splitlines(), self.intervals)
         )
 
+    def _latex_(self) -> str:
+        return self.matrix._latex_() + r"x \in" + self.intervals._latex_()
+
     @property
     def matrix(self) -> Matrix:
         r"""Return the corresponding matrix."""
