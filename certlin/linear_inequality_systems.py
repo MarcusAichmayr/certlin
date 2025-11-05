@@ -28,10 +28,10 @@ We consider another system::
     sage: I = Intervals.from_bounds(lower_bounds, upper_bounds, lower_bounds_closed, upper_bounds_closed)
     sage: S = LinearInequalitySystem(M, I)
     sage: S
-    [1 0]
-    [0 1]
-    [1 1]
-    [0 1] x in [2, 5) x [5, +oo) x (0, 8) x (-oo, 5]
+    [1 0]  x ∈  [2, 5)
+    [0 1]  x ∈  [5, +oo)
+    [1 1]  x ∈  (0, 8)
+    [0 1]  x ∈  (-oo, 5]
     sage: S.find_solution()
     (5/2, 5)
     sage: S.certify()
@@ -40,20 +40,20 @@ We consider another system::
 ::
 
     sage: S.to_inhomogeneous()
-    [ 1  0]
-    [-1 -1]
-    [ 1  1]
-    [-1  0]
-    [ 0 -1]
-    [ 0  1] x in (-oo, 5) x (-oo, 0) x (-oo, 8) x (-oo, -2] x (-oo, -5] x (-oo, 5]
+    [ 1  0]  x <   5
+    [-1 -1]  x <   0
+    [ 1  1]  x <   8
+    [-1  0]  x <= -2
+    [ 0 -1]  x <= -5
+    [ 0  1]  x <=  5
     sage: S.to_homogeneous()
-    [ 1  0 -5]
-    [-1 -1  0]
-    [ 1  1 -8]
-    [ 0  0 -1]
-    [-1  0  2]
-    [ 0 -1  5]
-    [ 0  1 -5] x in (0, +oo) x (0, +oo) x (0, +oo) x (0, +oo) x [0, +oo) x [0, +oo) x [0, +oo)
+    [ 1  0 -5]  x >  0
+    [-1 -1  0]  x >  0
+    [ 1  1 -8]  x >  0
+    [ 0  0 -1]  x >  0
+    [-1  0  2]  x >= 0
+    [ 0 -1  5]  x >= 0
+    [ 0  1 -5]  x >= 0
 
 We consider yet another system::
 
@@ -72,10 +72,10 @@ We consider yet another system::
 ::
 
     sage: S.to_homogeneous()
-    [-1 -1  0]
-    [ 0  0 -1]
-    [ 1  0 -1]
-    [ 1  1  0] x in (0, +oo) x (0, +oo) x [0, +oo) x [0, +oo)
+    [-1 -1  0]  x >  0
+    [ 0  0 -1]  x >  0
+    [ 1  0 -1]  x >= 0
+    [ 1  1  0]  x >= 0
 
 TESTS::
 
@@ -84,26 +84,26 @@ TESTS::
     sage: C = matrix([[1, -1]])
     sage: S = HomogeneousSystem(A, B, C)
     sage: S
-    [ 1  1]
-    [ 0  1]
-    [ 1 -1] x in (0, +oo) x [0, +oo) x {0}
+    [ 1  1]  x >  0
+    [ 0  1]  x >= 0
+    [ 1 -1]  x =  0
     sage: S.to_inhomogeneous()
-    [-1 -1]
-    [ 0 -1]
-    [-1  1]
-    [ 1 -1] x in (-oo, 0) x (-oo, 0] x (-oo, 0] x (-oo, 0]
+    [-1 -1]  x <  0
+    [ 0 -1]  x <= 0
+    [-1  1]  x <= 0
+    [ 1 -1]  x <= 0
     sage: S.to_inhomogeneous().to_homogeneous()
-    [-1 -1  0]
-    [ 0  0 -1]
-    [ 0 -1  0]
-    [-1  1  0]
-    [ 1 -1  0] x in (0, +oo) x (0, +oo) x [0, +oo) x [0, +oo) x [0, +oo)
+    [-1 -1  0]  x >  0
+    [ 0  0 -1]  x >  0
+    [ 0 -1  0]  x >= 0
+    [-1  1  0]  x >= 0
+    [ 1 -1  0]  x >= 0
     sage: S.to_inhomogeneous().to_homogeneous().to_inhomogeneous()
-    [ 1  1  0]
-    [ 0  0  1]
-    [ 0  1  0]
-    [ 1 -1  0]
-    [-1  1  0] x in (-oo, 0) x (-oo, 0) x (-oo, 0] x (-oo, 0] x (-oo, 0]
+    [ 1  1  0]  x <  0
+    [ 0  0  1]  x <  0
+    [ 0  1  0]  x <= 0
+    [ 1 -1  0]  x <= 0
+    [-1  1  0]  x <= 0
 """
 
 #############################################################################
@@ -143,7 +143,10 @@ class LinearInequalitySystem(SageObject):
         self._evs = ElementaryVectors(self.matrix.T)
 
     def _repr_(self) -> str:
-        return str(self.matrix) + " x in " + str(self.intervals)
+        return "\n".join(
+            f"{row_str}  x ∈  {interval}"
+            for row_str, interval in zip(str(self.matrix).splitlines(), self.intervals)
+        )
 
     @property
     def matrix(self) -> Matrix:
@@ -420,6 +423,17 @@ class HomogeneousSystem(LinearInequalitySystem):
         if self._length_strict == 1:
             self._evs._set_combinations_kernel(CombinationsIncluding(self._evs.length, self._evs.rank + 1, [0]))
 
+    def _repr_(self) -> str:
+        lines = []
+        for pos, row_str in enumerate(str(self.matrix).splitlines()):
+            if pos < self._length_strict:
+                lines.append(f"{row_str}  x >  0")
+            elif pos < self._length_strict + self._length_nonstrict:
+                lines.append(f"{row_str}  x >= 0")
+            else:
+                lines.append(f"{row_str}  x =  0")
+        return "\n".join(lines)
+
     def _compute_intervals(self) -> Intervals:
         return Intervals([
             Interval.open(0, Infinity)
@@ -490,6 +504,17 @@ class InhomogeneousSystem(LinearInequalitySystem):
         self._matrix_nonstrict = matrix_nonstrict
         self._vector_strict = vector_strict
         self._vector_nonstrict = vector_nonstrict
+
+    def _repr_(self) -> str:
+        lines = []
+        rhs_len = max(len(str(interval.supremum())) for interval in self.intervals)
+        for pos, (row_str, interval) in enumerate(zip(str(self.matrix).splitlines(), self.intervals)):
+            if pos < self._matrix_strict.nrows():
+                # right align right hand side
+                lines.append(f"{row_str}  x <  {str(interval.supremum()):>{rhs_len}}")
+            else:
+                lines.append(f"{row_str}  x <= {str(interval.supremum()):>{rhs_len}}")
+        return "\n".join(lines)
 
     def _compute_intervals(self) -> Intervals:
         return Intervals([Interval.open(-Infinity, ai) for ai in self._vector_strict] + [Interval.closed(-Infinity, bi) for bi in self._vector_nonstrict])
