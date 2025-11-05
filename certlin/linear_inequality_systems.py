@@ -4,7 +4,7 @@ Linear inequality systems
 
 EXAMPLES::
 
-    sage: from certineq import *
+    sage: from certlin import *
     sage: A = matrix([[1, 2], [0, 1]])
     sage: B = matrix([[2, 3]])
     sage: C = matrix([[-1, 0]])
@@ -242,7 +242,7 @@ class LinearInequalitySystem(SageObject):
 
         TESTS::
 
-            sage: from certineq import *
+            sage: from certlin import *
             sage: M = matrix([[1, 0], [0, 1], [1, 1], [0, 1]])
             sage: lower_bounds = [2, 5, 0, -oo]
             sage: upper_bounds = [5, oo, 8, 5]
@@ -414,7 +414,7 @@ class HomogeneousSystem(LinearInequalitySystem):
 
     TESTS::
 
-        sage: from certineq import *
+        sage: from certlin import *
         sage: A = matrix([[0, 1], [0, 1], [0, 1]])
         sage: B = zero_matrix(0, 2)
         sage: C = matrix([[1, 1], [0, 0]])

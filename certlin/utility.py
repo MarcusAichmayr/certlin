@@ -30,7 +30,7 @@ def solve_without_division(matrix: Matrix, rhs: vector) -> vector:
 
     EXAMPLES::
 
-        sage: from certineq.utility import solve_without_division
+        sage: from certlin.utility import solve_without_division
         sage: A = matrix([[1, 2], [0, 1], [1, -1]])
         sage: b = vector([1, 0, 1])
         sage: solve_without_division(A, b)
@@ -67,7 +67,7 @@ class CombinationsIncluding(SageObject):
 
     We generate all subsets of ``range(4)`` with ``2`` elements that include the element ``2``::
 
-        sage: from certineq.utility import CombinationsIncluding
+        sage: from certlin.utility import CombinationsIncluding
         sage: C = CombinationsIncluding(4, 2, [2])
         sage: list(C)
         [[0, 2], [1, 2], [2, 3]]

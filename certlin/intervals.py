@@ -34,7 +34,7 @@ class Interval(SageObject):
 
     EXAMPLES::
 
-        sage: from certineq import *
+        sage: from certlin import *
         sage: Interval(0, 1)
         [0, 1]
         sage: Interval(0, 1, False, True)
@@ -117,7 +117,7 @@ class Interval(SageObject):
         Return a LaTeX representation of the interval.
 
         EXAMPLES::
-            sage: from certineq import *
+            sage: from certlin import *
             sage: Interval(0, 1)._latex_()
             '[0, 1]'
             sage: Interval(0, 1, False, True)._latex_()
@@ -174,7 +174,7 @@ class Interval(SageObject):
 
         EXAMPLES::
 
-            sage: from certineq import *
+            sage: from certlin import *
             sage: Interval(0, 0).is_pointed()
             True
             sage: Interval(0, 1).is_pointed()
@@ -191,7 +191,7 @@ class Interval(SageObject):
 
         EXAMPLES::
 
-            sage: from certineq import *
+            sage: from certlin import *
             sage: Interval(0, 1).infimum()
             0
             sage: Interval(-oo, 0).infimum()
@@ -209,7 +209,7 @@ class Interval(SageObject):
 
         EXAMPLES::
 
-            sage: from certineq import *
+            sage: from certlin import *
             sage: Interval(0, 1).supremum()
             1
             sage: Interval(0, +oo).supremum()
@@ -227,7 +227,7 @@ class Interval(SageObject):
 
         EXAMPLES::
 
-            sage: from certineq import *
+            sage: from certlin import *
             sage: Interval(0, 1).an_element()
             0
             sage: Interval(0, 1, False, True).an_element()
@@ -269,7 +269,7 @@ class Interval(SageObject):
 
         EXAMPLES::
 
-            sage: from certineq import *
+            sage: from certlin import *
             sage: Interval(1/2, +oo, False, False).simplest_element()
             1
             sage: Interval(-oo, 1/2, False, False).simplest_element()
@@ -327,7 +327,7 @@ class Interval(SageObject):
 
         EXAMPLES::
 
-            sage: from certineq import *
+            sage: from certlin import *
             sage: Interval(0, 1, False, False)._simplest_rational()
             1/2
             sage: Interval(1/3, 1, False, False)._simplest_rational()
@@ -370,7 +370,7 @@ class Interval(SageObject):
 
         EXAMPLES::
 
-            sage: from certineq import *
+            sage: from certlin import *
             sage: Interval.random() # random
             (-1, 1)
         """
@@ -399,7 +399,7 @@ class Interval(SageObject):
 
         EXAMPLES::
 
-            sage: from certineq import *
+            sage: from certlin import *
             sage: Interval.open(0, 1)
             (0, 1)
         """
@@ -412,7 +412,7 @@ class Interval(SageObject):
 
         EXAMPLES::
 
-            sage: from certineq import *
+            sage: from certlin import *
             sage: Interval.closed(0, 1)
             [0, 1]
         """
@@ -425,7 +425,7 @@ class Interval(SageObject):
 
         EXAMPLES::
 
-            sage: from certineq import *
+            sage: from certlin import *
             sage: Interval.empty()
             {}
         """
@@ -438,7 +438,7 @@ class Intervals(SageObject):
 
     EXAMPLES::
 
-        sage: from certineq import *
+        sage: from certlin import *
         sage: Intervals([Interval(0, 1), Interval(-5, 2, False, False), Interval(0, 1)])
         [0, 1] x (-5, 2) x [0, 1]
         sage: vector([0, 1]) in Intervals([Interval(0, 1), Interval(-5, 2)])
@@ -469,7 +469,7 @@ class Intervals(SageObject):
 
         EXAMPLES::
 
-            sage: from certineq import *
+            sage: from certlin import *
             sage: Intervals([Interval(0, 1), Interval(-5, 2, False, False)])._latex_()
             '[0, 1] \\times (-5, 2)'
             sage: Intervals([Interval(-oo, 1), Interval(2, 2, False, False)])._latex_()
@@ -530,7 +530,7 @@ class Intervals(SageObject):
 
         EXAMPLES::
 
-            sage: from certineq import *
+            sage: from certlin import *
             sage: Intervals.random(3) # random
             [0, +oo) x (-5, 2) x (0, 1]
         """
@@ -543,7 +543,7 @@ class Intervals(SageObject):
 
         EXAMPLES::
 
-            sage: from certineq import *
+            sage: from certlin import *
             sage: Intervals.from_bounds([0, -5, 0], [1, 2, +oo])
             [0, 1] x [-5, 2] x [0, +oo)
             sage: Intervals.from_bounds([0, -5, 0], [1, 2, +oo], False, False)
@@ -578,7 +578,7 @@ class Intervals(SageObject):
 
         EXAMPLES::
 
-            sage: from certineq import *
+            sage: from certlin import *
             sage: from sign_vectors import *
             sage: sv = sign_vector("+0-")
             sage: Intervals.from_sign_vector(sv)
@@ -605,7 +605,7 @@ class Intervals(SageObject):
 
         EXAMPLES::
 
-            sage: from certineq import *
+            sage: from certlin import *
             sage: intervals = Intervals.from_bounds([-1, 1], [0, 1])
             sage: intervals.sign_vectors()
             [(0+), (-+)]

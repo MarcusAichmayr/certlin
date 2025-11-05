@@ -4,7 +4,7 @@ install:
 	sage -pip install --upgrade .
 
 test:
-	sage -t certineq/
+	sage -t certlin/
 
 doc:
 	cd docs && make html

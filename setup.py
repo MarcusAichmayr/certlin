@@ -8,12 +8,12 @@ def readfile(filename):
 
 
 setup(
-    name="certineq",
+    name="certlin",
     version="1.0",
     description="a SageMath package to work with linear inequality systems and certify (un)solvability of them",
     long_description=readfile("README.md"),
     long_description_content_type="text/markdown",
-    url="https://github.com/MarcusAichmayr/certineq",
+    url="https://github.com/MarcusAichmayr/certlin",
     author="Marcus S. Aichmayr",
     author_email="aichmayr@mathematik.uni-kassel.de",
     license="GPL-3.0-or-later",
@@ -33,7 +33,7 @@ setup(
         "cocircuits",
         "vectors",
     ],
-    packages=["certineq",],
+    packages=["certlin",],
     install_requires=["elementary_vectors>=2.0", "sign_vectors>=1.0"],
     extras_require={
         "passagemath": [

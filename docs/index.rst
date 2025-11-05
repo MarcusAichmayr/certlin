@@ -1,14 +1,14 @@
-Documentation of Certineq
+Documentation of Certlin
 =========================
 
-To install this SageMath package, visit the `repository on GitHub <https://github.com/MarcusAichmayr/certineq>`_.
+To install this SageMath package, visit the `repository on GitHub <https://github.com/MarcusAichmayr/certlin>`_.
 
-.. rubric:: Certineq
+.. rubric:: Certifying linear inequality systems
 
 .. autosummary::
     :toctree: generated
 
-    certineq.intervals
-    certineq.linear_inequality_systems
-    certineq.utility
+    certlin.intervals
+    certlin.linear_inequality_systems
+    certlin.utility
 
