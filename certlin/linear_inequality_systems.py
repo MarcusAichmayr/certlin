@@ -43,7 +43,6 @@ We consider another system::
     [ 1  0]
     [-1 -1]
     [ 1  1]
-    [-----]
     [-1  0]
     [ 0 -1]
     [ 0  1] x in (-oo, 5) x (-oo, 0) x (-oo, 8) x (-oo, -2] x (-oo, -5] x (-oo, 5]
@@ -52,11 +51,9 @@ We consider another system::
     [-1 -1  0]
     [ 1  1 -8]
     [ 0  0 -1]
-    [--------]
     [-1  0  2]
     [ 0 -1  5]
-    [ 0  1 -5]
-    [--------] x in (0, +oo) x (0, +oo) x (0, +oo) x (0, +oo) x [0, +oo) x [0, +oo) x [0, +oo)
+    [ 0  1 -5] x in (0, +oo) x (0, +oo) x (0, +oo) x (0, +oo) x [0, +oo) x [0, +oo) x [0, +oo)
 
 We consider yet another system::
 
@@ -77,10 +74,8 @@ We consider yet another system::
     sage: S.to_homogeneous()
     [-1 -1  0]
     [ 0  0 -1]
-    [--------]
     [ 1  0 -1]
-    [ 1  1  0]
-    [--------] x in (0, +oo) x (0, +oo) x [0, +oo) x [0, +oo)
+    [ 1  1  0] x in (0, +oo) x (0, +oo) x [0, +oo) x [0, +oo)
 
 TESTS::
 
@@ -90,28 +85,22 @@ TESTS::
     sage: S = HomogeneousSystem(A, B, C)
     sage: S
     [ 1  1]
-    [-----]
     [ 0  1]
-    [-----]
     [ 1 -1] x in (0, +oo) x [0, +oo) x {0}
     sage: S.to_inhomogeneous()
     [-1 -1]
-    [-----]
     [ 0 -1]
     [-1  1]
     [ 1 -1] x in (-oo, 0) x (-oo, 0] x (-oo, 0] x (-oo, 0]
     sage: S.to_inhomogeneous().to_homogeneous()
     [-1 -1  0]
     [ 0  0 -1]
-    [--------]
     [ 0 -1  0]
     [-1  1  0]
-    [ 1 -1  0]
-    [--------] x in (0, +oo) x (0, +oo) x [0, +oo) x [0, +oo) x [0, +oo)
+    [ 1 -1  0] x in (0, +oo) x (0, +oo) x [0, +oo) x [0, +oo) x [0, +oo)
     sage: S.to_inhomogeneous().to_homogeneous().to_inhomogeneous()
     [ 1  1  0]
     [ 0  0  1]
-    [--------]
     [ 0  1  0]
     [ 1 -1  0]
     [-1  1  0] x in (-oo, 0) x (-oo, 0) x (-oo, 0] x (-oo, 0] x (-oo, 0]
@@ -423,7 +412,7 @@ class HomogeneousSystem(LinearInequalitySystem):
         (True, (-1, 1))
     """
     def __init__(self, matrix_strict: Matrix, matrix_nonstrict: Matrix, matrix_zero: Matrix) -> None:
-        super().__init__(Matrix.block([[matrix_strict], [matrix_nonstrict], [matrix_zero]]), None)
+        super().__init__(Matrix.block([[matrix_strict], [matrix_nonstrict], [matrix_zero]], subdivide=False), None)
         self._length_strict = matrix_strict.nrows()
         self._length_nonstrict = matrix_nonstrict.nrows()
         self._length_zero = matrix_zero.nrows()
@@ -444,11 +433,11 @@ class HomogeneousSystem(LinearInequalitySystem):
 
     def dual(self) -> HomogeneousSystem:
         return HomogeneousSystem(
-            Matrix.block([[Matrix.ones(1, self._length_strict), Matrix.zero(1, self._length_nonstrict), Matrix.zero(1, self._length_zero)]]),
+            Matrix.block([[Matrix.ones(1, self._length_strict), Matrix.zero(1, self._length_nonstrict), Matrix.zero(1, self._length_zero)]], subdivide=False),
             Matrix.block([
                 [Matrix.identity(self._length_strict), Matrix.zero(self._length_strict, self._length_nonstrict), Matrix.zero(self._length_strict, self._length_zero)],
                 [Matrix.zero(self._length_nonstrict, self._length_strict), Matrix.identity(self._length_nonstrict), Matrix.zero(self._length_nonstrict, self._length_zero)]
-            ]),
+            ], subdivide=False),
             self.matrix.T
         )
 
@@ -496,7 +485,7 @@ class InhomogeneousSystem(LinearInequalitySystem):
     ``A x < a``, ``B x <= b``
     """
     def __init__(self, matrix_strict: Matrix, matrix_nonstrict: Matrix, vector_strict: vector, vector_nonstrict: vector) -> None:
-        super().__init__(Matrix.block([[matrix_strict], [matrix_nonstrict]]), None)
+        super().__init__(Matrix.block([[matrix_strict], [matrix_nonstrict]], subdivide=False), None)
         self._matrix_strict = matrix_strict
         self._matrix_nonstrict = matrix_nonstrict
         self._vector_strict = vector_strict
@@ -507,8 +496,11 @@ class InhomogeneousSystem(LinearInequalitySystem):
 
     def to_homogeneous(self) -> HomogeneousSystem:
         return HomogeneousSystem(
-            Matrix.block([[self._matrix_strict, Matrix(len(self._vector_strict), 1, -self._vector_strict)], [zero_matrix(1, self._matrix_nonstrict.ncols()), Matrix([[-1]])]]),
-            Matrix.block([[self._matrix_nonstrict, Matrix(len(self._vector_nonstrict), 1, -self._vector_nonstrict)]]),
+            Matrix.block([
+                [self._matrix_strict, Matrix(len(self._vector_strict), 1, -self._vector_strict)],
+                [zero_matrix(1, self._matrix_nonstrict.ncols()), Matrix([[-1]])]
+            ], subdivide=False),
+            Matrix.block([[self._matrix_nonstrict, Matrix(len(self._vector_nonstrict), 1, -self._vector_nonstrict)]], subdivide=False),
             Matrix(0, self._matrix_nonstrict.ncols() + 1)
         )
 
@@ -520,14 +512,12 @@ class InhomogeneousSystem(LinearInequalitySystem):
         length_nonstrict = self._matrix_nonstrict.nrows()
         length = self._matrix_nonstrict.ncols()
         return HomogeneousSystem(
-            Matrix.block([
-                [Matrix.zero(1, length_nonstrict), Matrix.ones(1, length_strict + 1)]
-            ]),
+            Matrix.block([[Matrix.zero(1, length_nonstrict), Matrix.ones(1, length_strict + 1)]], subdivide=False),
             Matrix.identity(length_nonstrict + length_strict + 1),
             Matrix.block([
                 [self._matrix_nonstrict.T, self._matrix_strict.T, Matrix.zero(length, 1)],
                 [-self._vector_nonstrict.row(), -self._vector_strict.row(), Matrix([[-1]])]
-            ])
+            ], subdivide=False)
         )
 
     def _exists_orthogonal_vector(self, v: vector) -> bool:
