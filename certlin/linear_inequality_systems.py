@@ -2,112 +2,8 @@ r"""
 Linear inequality systems
 =========================
 
-EXAMPLES::
-
-    sage: from certlin import *
-    sage: A = matrix([[1, 2], [0, 1]])
-    sage: B = matrix([[2, 3]])
-    sage: C = matrix([[-1, 0]])
-    sage: S = HomogeneousSystem(A, B, C)
-    sage: S.intervals
-    (0, +oo) x (0, +oo) x [0, +oo) x {0}
-    sage: S.find_solution()
-    (0, 1)
-    sage: S.certify()
-    (True, (0, 1))
-    sage: S.certify(random=True)
-    (True, (0, 1))
-
-We consider another system::
-
-    sage: M = matrix([[1, 0], [0, 1], [1, 1], [0, 1]])
-    sage: lower_bounds = [2, 5, 0, -oo]
-    sage: upper_bounds = [5, oo, 8, 5]
-    sage: lower_bounds_closed = [True, True, False, False]
-    sage: upper_bounds_closed = [False, False, False, True]
-    sage: I = Intervals.from_bounds(lower_bounds, upper_bounds, lower_bounds_closed, upper_bounds_closed)
-    sage: S = LinearInequalitySystem(M, I)
-    sage: S
-    [1 0]  x in  [2, 5)
-    [0 1]  x in  [5, +oo)
-    [1 1]  x in  (0, 8)
-    [0 1]  x in  (-oo, 5]
-    sage: S.certify()
-    (True, (5/2, 5))
-    sage: S.find_solution()
-    (5/2, 5)
-    sage: S.find_solution_random() # random
-    (5/2, 5)
-
-::
-
-    sage: S.to_inhomogeneous()
-    [ 1  0]  x <   5
-    [-1 -1]  x <   0
-    [ 1  1]  x <   8
-    [-1  0]  x <= -2
-    [ 0 -1]  x <= -5
-    [ 0  1]  x <=  5
-    sage: S.to_homogeneous()
-    [ 1  0 -5]  x >  0
-    [-1 -1  0]  x >  0
-    [ 1  1 -8]  x >  0
-    [ 0  0 -1]  x >  0
-    [-1  0  2]  x >= 0
-    [ 0 -1  5]  x >= 0
-    [ 0  1 -5]  x >= 0
-
-We consider yet another system::
-
-    sage: A = matrix([[-1, -1]])
-    sage: B = matrix([[1, 0], [1, 1]])
-    sage: a = vector([0])
-    sage: b = vector([1, 0])
-    sage: S = InhomogeneousSystem(A, B, a, b)
-    sage: S.certify()
-    (False, (1, 0, 1))
-    sage: S.certify(random=True)
-    (False, (1, 0, 1))
-    sage: S.certify_nonexistence()
-    (1, 0, 1)
-    sage: S.certify_nonexistence_random() # random
-    (1, 0, 1)
-
-::
-
-    sage: S.to_homogeneous()
-    [-1 -1  0]  x >  0
-    [ 0  0 -1]  x >  0
-    [ 1  0 -1]  x >= 0
-    [ 1  1  0]  x >= 0
-
-TESTS::
-
-    sage: A = matrix([[1, 1]])
-    sage: B = matrix([[0, 1]])
-    sage: C = matrix([[1, -1]])
-    sage: S = HomogeneousSystem(A, B, C)
-    sage: S
-    [ 1  1]  x >  0
-    [ 0  1]  x >= 0
-    [ 1 -1]  x =  0
-    sage: S.to_inhomogeneous()
-    [-1 -1]  x <  0
-    [ 0 -1]  x <= 0
-    [-1  1]  x <= 0
-    [ 1 -1]  x <= 0
-    sage: S.to_inhomogeneous().to_homogeneous()
-    [-1 -1  0]  x >  0
-    [ 0  0 -1]  x >  0
-    [ 0 -1  0]  x >= 0
-    [-1  1  0]  x >= 0
-    [ 1 -1  0]  x >= 0
-    sage: S.to_inhomogeneous().to_homogeneous().to_inhomogeneous()
-    [ 1  1  0]  x <  0
-    [ 0  0  1]  x <  0
-    [ 0  1  0]  x <= 0
-    [ 1 -1  0]  x <= 0
-    [-1  1  0]  x <= 0
+This module provides classes for linear inequality systems
+with methods to find solutions or to certify their nonexistence.
 """
 
 #############################################################################
@@ -132,13 +28,89 @@ from sage.modules.free_module_element import vector, zero_vector
 from sage.rings.infinity import Infinity
 from sage.structure.sage_object import SageObject
 
-from . import Intervals, Interval
 from elementary_vectors import ElementaryVectors
+from . import Intervals, Interval
 from .utility import CombinationsIncluding, solve_without_division
 
 
 class LinearInequalitySystem(SageObject):
-    r"""A class for linear inequality systems given by a matrix and intervals."""
+    r"""
+    A class for linear inequality systems given by a matrix and intervals.
+
+    Every linear inequality system can be written using a matrix :math:`M` and a Cartesian product of intervals :math:`I` as
+
+    .. MATH::
+
+        M x \in I.
+
+    EXAMPLES::
+
+        sage: from certlin import *
+        sage: M = matrix([[1, 0], [0, 1], [1, 1], [0, 1]])
+        sage: lower_bounds = [2, 5, 0, -oo]
+        sage: upper_bounds = [5, oo, 8, 5]
+        sage: lower_bounds_closed = [True, True, False, False]
+        sage: upper_bounds_closed = [False, False, False, True]
+        sage: I = Intervals.from_bounds(lower_bounds, upper_bounds, lower_bounds_closed, upper_bounds_closed)
+        sage: I # Cartesian product of intervals
+        [2, 5) x [5, +oo) x (0, 8) x (-oo, 5]
+        sage: S = LinearInequalitySystem(M, I)
+        sage: S
+        [1 0]  x in  [2, 5)
+        [0 1]  x in  [5, +oo)
+        [1 1]  x in  (0, 8)
+        [0 1]  x in  (-oo, 5]
+
+    We check for solvability::
+
+        sage: S.certify()
+        (True, (5/2, 5))
+        sage: S.find_solution()
+        (5/2, 5)
+        sage: S.find_solution_random() # random
+        (5/2, 5)
+        sage: S.certify_nonexistence()
+        Traceback (most recent call last):
+        ...
+        ValueError: A solution exists!
+        sage: S.certify_nonexistence_random()
+        Traceback (most recent call last):
+        ...
+        MaxIterationsReachedError: Reached maximum number of iterations! Does a solution exist?
+
+    We rewrite the system as a homogeneous and an inhomogeneous system::
+
+        sage: S.to_homogeneous()
+        [ 1  0 -5]  x >  0
+        [-1 -1  0]  x >  0
+        [ 1  1 -8]  x >  0
+        [ 0  0 -1]  x >  0
+        [-1  0  2]  x >= 0
+        [ 0 -1  5]  x >= 0
+        [ 0  1 -5]  x >= 0
+        sage: S.to_inhomogeneous()
+        [ 1  0]  x <   5
+        [-1 -1]  x <   0
+        [ 1  1]  x <   8
+        [-1  0]  x <= -2
+        [ 0 -1]  x <= -5
+        [ 0  1]  x <=  5
+
+    The dual system can be computed as well::
+
+        sage: S.dual()
+        [ 0  0  0  1  1  1  1]  x >  0
+        [ 1  0  0  0  0  0  0]  x >= 0
+        [ 0  1  0  0  0  0  0]  x >= 0
+        [ 0  0  1  0  0  0  0]  x >= 0
+        [ 0  0  0  1  0  0  0]  x >= 0
+        [ 0  0  0  0  1  0  0]  x >= 0
+        [ 0  0  0  0  0  1  0]  x >= 0
+        [ 0  0  0  0  0  0  1]  x >= 0
+        [-1  0  0  1 -1  1  0]  x =  0
+        [ 0 -1  1  0 -1  1  0]  x =  0
+        [ 2  5 -5 -5  0 -8 -1]  x =  0
+    """
     def __init__(self, matrix: Matrix, intervals: Intervals = None) -> None:
         if intervals is not None and matrix.nrows() != len(intervals):
             raise ValueError("Matrix row count and number of intervals must agree!")
@@ -338,7 +310,7 @@ class LinearInequalitySystem(SageObject):
 
             - If the iteration limit is reached, a ``MaxIterationsReachedError`` is raised.
             - If a solution exists, a ``ValueError`` is raised.
-            - If a solution exists, the iteration limit is ``-1``, this leads to an endless loop.
+            - If a solution exists *and* the iteration limit is ``-1``, you get an endless loop.
 
         .. SEEALSO::
 
@@ -406,7 +378,7 @@ class LinearInequalitySystem(SageObject):
 
             - If the iteration limit is reached, a ``MaxIterationsReachedError`` is raised.
             - If no solution exists, a ``ValueError`` is raised.
-            - If no solution exists, the iteration limit is ``-1``, this leads to an endless loop.
+            - If no solution exists *and* the iteration limit is ``-1``, you get an endless loop.
 
         .. SEEALSO::
 
@@ -466,7 +438,50 @@ class HomogeneousSystem(LinearInequalitySystem):
     r"""
     A class for homogeneous linear inequality systems.
 
-    ``A x > 0``, ``B x >= 0``, ``C x = 0``
+    A homogeneous linear inequality system is of the form
+
+    .. MATH::
+
+        A x > 0, \quad B x \geq 0, \quad C x = 0.
+
+    EXAMPLES::
+
+        sage: from certlin import *
+        sage: A = matrix([[1, 2], [0, 1]])
+        sage: B = matrix([[2, 3]])
+        sage: C = matrix([[-1, 0]])
+        sage: S = HomogeneousSystem(A, B, C)
+        sage: S
+        [ 1  2]  x >  0
+        [ 0  1]  x >  0
+        [ 2  3]  x >= 0
+        [-1  0]  x =  0
+
+    The :meth:`certify` command checks whether a solution exists and returns a certificate for both cases::
+
+        sage: S.certify()
+        (True, (0, 1))
+        sage: S.certify(random=True)
+        (True, (0, 1))
+
+    Therefore, there is indeed a solution::
+
+        sage: S.find_solution()
+        (0, 1)
+        sage: S.find_solution_random() # random
+        (0, 1)
+
+    The dual system can be computed as well::
+
+        sage: S.dual()
+        [ 1  1  0  0]  x >  0
+        [ 1  0  0  0]  x >= 0
+        [ 0  1  0  0]  x >= 0
+        [ 0  0  1  0]  x >= 0
+        [ 1  0  2 -1]  x =  0
+        [ 2  1  3  0]  x =  0
+        sage: S.dual().certify()
+        (False, (-1, -1, 0, -3, 0, 1))
 
     TESTS::
 
@@ -553,14 +568,67 @@ class HomogeneousSystem(LinearInequalitySystem):
                     return certificate
                 break
 
-        raise ValueError("Couldn't construct a solution. No solution exists!")
+        raise ValueError("No solution exists!")
 
 
 class InhomogeneousSystem(LinearInequalitySystem):
     r"""
     A class for inhomogeneous linear inequality systems.
 
-    ``A x < a``, ``B x <= b``
+    An inhomogeneous linear inequality system is of the form
+
+    .. MATH::
+
+        A x < a, \quad B x \leq b.
+
+    EXAMPLES::
+
+        sage: from certlin import *
+        sage: A = matrix([[-1, -1]])
+        sage: B = matrix([[1, 0], [1, 1]])
+        sage: a = vector([0])
+        sage: b = vector([1, 0])
+        sage: S = InhomogeneousSystem(A, B, a, b)
+        sage: S
+        [-1 -1]  x <  0
+        [ 1  0]  x <= 1
+        [ 1  1]  x <= 0
+
+    This system has no solution which we certify::
+
+        sage: S.certify()
+        (False, (1, 0, 1))
+        sage: S.certify(random=True)
+        (False, (1, 0, 1))
+        sage: S.certify_nonexistence()
+        (1, 0, 1)
+        sage: S.certify_nonexistence_random() # random
+        (1, 0, 1)
+
+    Therefore, the command :meth:`find_solution` raises an error::
+
+        sage: S.find_solution()
+        Traceback (most recent call last):
+        ...
+        ValueError: No solution exists!
+        sage: S.find_solution_random()
+        Traceback (most recent call last):
+        ...
+        MaxIterationsReachedError: Reached maximum number of iterations! Is system unsolvable?
+
+    We compute the dual system and write it in homogeneous form::
+
+        sage: S.dual()
+        [ 0  0  1  1]  x >  0
+        [ 1  0  0  0]  x >= 0
+        [ 0  1  0  0]  x >= 0
+        [ 0  0  1  0]  x >= 0
+        [ 0  0  0  1]  x >= 0
+        [ 1  1 -1  0]  x =  0
+        [ 0  1 -1  0]  x =  0
+        [-1  0  0 -1]  x =  0
+        sage: S.dual().certify()
+        (True, (0, 1, 1, 0))
     """
     def __init__(self, matrix_strict: Matrix, matrix_nonstrict: Matrix, vector_strict: vector, vector_nonstrict: vector) -> None:
         super().__init__(Matrix.block([[matrix_strict], [matrix_nonstrict]], subdivide=False), None)

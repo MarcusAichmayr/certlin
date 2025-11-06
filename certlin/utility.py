@@ -25,8 +25,13 @@ def solve_without_division(matrix: Matrix, rhs: vector) -> vector:
     r"""
     Solve a linear system of equations without division.
 
-    Compute ``x`` for ``A x = c b`` where ``c`` is any positive constant.
-    Uses an elementary vector.
+    Use a circuit to compute :math:`x` for
+
+    .. MATH::
+
+        A x = \lambda b
+
+    where :math:`\lambda` is any positive constant.
 
     EXAMPLES::
 
@@ -52,11 +57,20 @@ def solve_without_division(matrix: Matrix, rhs: vector) -> vector:
         sage: rhs = vector([1, 1])
         sage: solve_without_division(M, rhs)
         (1, 0, 0)
+
+    ::
+
+        sage: M = matrix([[1, 1], [1, 1]])
+        sage: rhs = vector([1, 2])
+        sage: solve_without_division(M, rhs)
+        Traceback (most recent call last):
+        ...
+        ValueError: No circuit with nonzero last component found. Is there a solution?
     """
-    for ev in ElementaryVectors(Matrix.block([[matrix, Matrix.column(rhs)]])).circuit_generator(reverse=True):
-        if ev[-1] != 0:
-            return -sign(ev[-1]) * ev[:-1]
-    raise ValueError("No elementary vector with nonzero last component found. Is there a solution?")
+    for circuit in ElementaryVectors(Matrix.block([[matrix, Matrix.column(rhs)]])).circuit_generator(reverse=True):
+        if circuit[-1] != 0:
+            return -sign(circuit[-1]) * circuit[:-1]
+    raise ValueError("No circuit with nonzero last component found. Is there a solution?")
 
 
 class CombinationsIncluding(SageObject):
