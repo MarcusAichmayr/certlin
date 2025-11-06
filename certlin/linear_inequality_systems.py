@@ -457,7 +457,7 @@ class HomogeneousSystem(LinearInequalitySystem):
         [ 2  3]  x >= 0
         [-1  0]  x =  0
 
-    The :meth:`certify` command checks whether a solution exists and returns a certificate for both cases::
+    We certify whether a solution exists::
 
         sage: S.certify()
         (True, (0, 1))
@@ -605,7 +605,7 @@ class InhomogeneousSystem(LinearInequalitySystem):
         sage: S.certify_nonexistence_random() # random
         (1, 0, 1)
 
-    Therefore, the command :meth:`find_solution` raises an error::
+    Therefore, we cannot find a solution::
 
         sage: S.find_solution()
         Traceback (most recent call last):
