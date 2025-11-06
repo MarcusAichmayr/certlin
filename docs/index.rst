@@ -8,7 +8,6 @@ To install this SageMath package, visit the `repository on GitHub <https://githu
 .. autosummary::
     :toctree: generated
 
-    certlin.intervals
     certlin.linear_inequality_systems
+    certlin.intervals
     certlin.utility
-
