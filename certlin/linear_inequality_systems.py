@@ -28,10 +28,10 @@ We consider another system::
     sage: I = Intervals.from_bounds(lower_bounds, upper_bounds, lower_bounds_closed, upper_bounds_closed)
     sage: S = LinearInequalitySystem(M, I)
     sage: S
-    [1 0]  x ∈  [2, 5)
-    [0 1]  x ∈  [5, +oo)
-    [1 1]  x ∈  (0, 8)
-    [0 1]  x ∈  (-oo, 5]
+    [1 0]  x in  [2, 5)
+    [0 1]  x in  [5, +oo)
+    [1 1]  x in  (0, 8)
+    [0 1]  x in  (-oo, 5]
     sage: S.certify()
     (True, (5/2, 5))
     sage: S.find_solution()
@@ -148,7 +148,7 @@ class LinearInequalitySystem(SageObject):
 
     def _repr_(self) -> str:
         return "\n".join(
-            f"{row_str}  x ∈  {interval}"
+            f"{row_str}  x in  {interval}"
             for row_str, interval in zip(str(self.matrix).splitlines(), self.intervals)
         )
 
