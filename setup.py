@@ -10,7 +10,7 @@ def readfile(filename):
 setup(
     name="certlin",
     version="1.1",
-    description="a SageMath package to work with linear inequality systems and certify (un)solvability of them",
+    description="SageMath package for linear inequality systems and certifying (un)solvability",
     long_description=readfile("README.md"),
     long_description_content_type="text/markdown",
     url="https://github.com/MarcusAichmayr/certlin",
