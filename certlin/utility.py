@@ -18,7 +18,7 @@ from sage.matrix.constructor import Matrix
 from sage.modules.free_module_element import vector
 from sage.structure.sage_object import SageObject
 
-from elementary_vectors import ElementaryVectors
+from elementary_vectors.functions import circuit_generator
 
 
 def solve_without_division(matrix: Matrix, rhs: vector) -> vector:
@@ -67,7 +67,7 @@ def solve_without_division(matrix: Matrix, rhs: vector) -> vector:
         ...
         ValueError: No circuit with nonzero last component found. Is there a solution?
     """
-    for circuit in ElementaryVectors(Matrix.block([[matrix, Matrix.column(rhs)]])).circuit_generator(reverse=True):
+    for circuit in circuit_generator(Matrix.block([[matrix, Matrix.column(rhs)]]), reverse=True):
         if circuit[-1] != 0:
             return -sign(circuit[-1]) * circuit[:-1]
     raise ValueError("No circuit with nonzero last component found. Is there a solution?")
