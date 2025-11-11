@@ -68,12 +68,12 @@ def solve_without_division(matrix: Matrix, rhs: vector) -> vector:
         sage: solve_without_division(M, rhs)
         Traceback (most recent call last):
         ...
-        ValueError: No circuit with nonzero last component found. Is there a solution?
+        ValueError: No circuit with nonzero last component found. A solution might exist.
     """
     for circuit in circuit_generator(Matrix.block([[matrix, Matrix.column(rhs)]]), reverse=True):
         if circuit[-1] != 0:
             return -sign(circuit[-1]) * circuit[:-1]
-    raise ValueError("No circuit with nonzero last component found. Is there a solution?")
+    raise ValueError("No circuit with nonzero last component found. A solution might exist.")
 
 
 class CombinationsIncluding(SageObject):

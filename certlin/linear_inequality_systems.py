@@ -72,11 +72,11 @@ class LinearInequalitySystem(SageObject):
         sage: S.certify_nonexistence()
         Traceback (most recent call last):
         ...
-        ValueError: A solution exists!
+        ValueError: A solution exists.
         sage: S.certify_nonexistence_random()
         Traceback (most recent call last):
         ...
-        MaxIterationsReachedError: Reached maximum number of iterations! Does a solution exist?
+        MaxIterationsReachedError: Maximum number of iterations reached. A solution might exist.
 
     We rewrite the system as a homogeneous and an inhomogeneous system::
 
@@ -113,7 +113,7 @@ class LinearInequalitySystem(SageObject):
     """
     def __init__(self, matrix: Matrix, intervals: Intervals = None) -> None:
         if intervals is not None and matrix.nrows() != len(intervals):
-            raise ValueError("Matrix row count and number of intervals must agree!")
+            raise ValueError("Matrix row count and number of intervals must agree.")
         self._matrix = matrix
         self._intervals = intervals
         self._evs = ElementaryVectors(self.matrix.T)
@@ -333,12 +333,12 @@ class LinearInequalitySystem(SageObject):
             if stop_event is not None and stop_event.is_set():
                 raise ProcessStoppedError("Process was stopped because another process found a solution.")
             if iteration_limit != -1 and i >= iteration_limit:
-                raise MaxIterationsReachedError("Reached maximum number of iterations! Does a solution exist?")
+                raise MaxIterationsReachedError("Maximum number of iterations reached. A solution might exist.")
             if v is None:
                 continue
             if not self._exists_orthogonal_vector(v):
                 return v
-        raise ValueError("A solution exists!")
+        raise ValueError("A solution exists.")
 
     def find_solution(self, iteration_limit: int = -1) -> vector:
         r"""
@@ -555,7 +555,7 @@ class HomogeneousSystem(LinearInequalitySystem):
             if stop_event is not None and stop_event.is_set():
                 raise ProcessStoppedError("Process was stopped because another process found a certificate for nonexistence.")
             if iteration_limit != -1 and i >= iteration_limit:
-                raise MaxIterationsReachedError("Reached maximum number of iterations! Is system unsolvable?")
+                raise MaxIterationsReachedError("Maximum number of iterations reached. A solution may not exist.")
             if v is None:
                 continue
             for w in [v, -v]:
@@ -568,7 +568,7 @@ class HomogeneousSystem(LinearInequalitySystem):
                     return certificate
                 break
 
-        raise ValueError("No solution exists!")
+        raise ValueError("No solution exists.")
 
 
 class InhomogeneousSystem(LinearInequalitySystem):
@@ -610,11 +610,11 @@ class InhomogeneousSystem(LinearInequalitySystem):
         sage: S.find_solution()
         Traceback (most recent call last):
         ...
-        ValueError: No solution exists!
+        ValueError: No solution exists.
         sage: S.find_solution_random()
         Traceback (most recent call last):
         ...
-        MaxIterationsReachedError: Reached maximum number of iterations! Is system unsolvable?
+        MaxIterationsReachedError: Maximum number of iterations reached. A solution may not exist.
 
     We compute the dual system and write it in homogeneous form::
 
