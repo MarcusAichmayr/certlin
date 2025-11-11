@@ -56,10 +56,10 @@ class LinearInequalitySystem(SageObject):
         [2, 5) x [5, +oo) x (0, 8) x (-oo, 5]
         sage: S = LinearInequalitySystem(M, I)
         sage: S
-        [1 0]  x in  [2, 5)
-        [0 1]  x in  [5, +oo)
-        [1 1]  x in  (0, 8)
-        [0 1]  x in  (-oo, 5]
+        [1 0]  x in [2, 5)
+        [0 1]  x in [5, +oo)
+        [1 1]  x in (0, 8)
+        [0 1]  x in (-oo, 5]
 
     We check for solvability::
 
@@ -120,7 +120,7 @@ class LinearInequalitySystem(SageObject):
 
     def _repr_(self) -> str:
         return "\n".join(
-            f"{row_str}  x in  {interval}"
+            f"{row_str}  x in {interval}"
             for row_str, interval in zip(str(self.matrix).splitlines(), self.intervals)
         )
 
