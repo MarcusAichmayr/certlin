@@ -9,7 +9,7 @@ def readfile(filename):
 
 setup(
     name="certlin",
-    version="1.1",
+    version="1.2",
     description="SageMath package for linear inequality systems and certifying (un)solvability",
     long_description=readfile("README.md"),
     long_description_content_type="text/markdown",
@@ -34,7 +34,7 @@ setup(
         "vectors",
     ],
     packages=["certlin",],
-    install_requires=["elementary_vectors>=2.1"],
+    install_requires=["elementary_vectors>=2.2"],
     extras_require={
         "passagemath": [
             "passagemath-symbolics",
