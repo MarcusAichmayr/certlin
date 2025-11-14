@@ -28,7 +28,7 @@ from sage.modules.free_module_element import vector, zero_vector
 from sage.rings.infinity import Infinity
 from sage.structure.sage_object import SageObject
 
-from elementary_vectors import ElementaryVectors
+from elementary_vectors import CircuitEnumerator
 from . import Intervals, Interval
 from .utility import CombinationsIncluding, solve_without_division
 
@@ -116,7 +116,7 @@ class LinearInequalitySystem(SageObject):
             raise ValueError("Matrix row count and number of intervals must agree.")
         self._matrix = matrix
         self._intervals = intervals
-        self._evs = ElementaryVectors(self.matrix.T)
+        self._evs = CircuitEnumerator(self.matrix.T)
 
     def _repr_(self) -> str:
         return "\n".join(
