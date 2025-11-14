@@ -15,6 +15,8 @@ LICENSE file), either version 3 or (at your option) any later version
 
 Sage 10.0 or later is recommended.
 
+The package [elementary_vectors](https://github.com/MarcusAichmayr/elementary_vectors) is required.
+
 ## Installation
 
 ### Install from GitHub (recommended)
