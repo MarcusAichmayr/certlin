@@ -108,7 +108,7 @@ class Interval(SageObject):
             return "{}"
         if self.is_pointed():
             return f"{{{self.lower}}}"
-        return f"{'[' if self.lower_closed else '('}{'-oo' if self.lower == minus_infinity else self.lower}, {'+oo' if self.upper == Infinity else self.upper}{']' if self.upper_closed else ')'}"
+        return f"{'[' if self.lower_closed else '('}{'-oo' if self._is_lower_infinite() else self.lower}, {'+oo' if self._is_upper_infinite() else self.upper}{']' if self.upper_closed else ')'}"
 
     def _latex_(self) -> str:
         r"""
@@ -135,9 +135,9 @@ class Interval(SageObject):
             return r"\{" + f"{self.lower}" + r"\}"
         return (
             ("[" if self.lower_closed else "(")
-            + (r"-\infty" if self.lower == minus_infinity else f"{self.lower}")
+            + (r"-\infty" if self._is_lower_infinite() else f"{self.lower}")
             + ", "
-            + (r"\infty" if self.upper == Infinity else f"{self.upper}")
+            + (r"\infty" if self._is_upper_infinite() else f"{self.upper}")
             + ("]" if self.upper_closed else ")")
         )
 
@@ -158,7 +158,13 @@ class Interval(SageObject):
 
     def is_unbounded(self) -> bool:
         r"""Return whether the interval is unbounded."""
-        return self.lower == minus_infinity or self.upper == Infinity
+        return self._is_lower_infinite() or self._is_upper_infinite()
+
+    def _is_lower_infinite(self) -> bool:
+        return self.lower == minus_infinity
+
+    def _is_upper_infinite(self) -> bool:
+        return self.upper == Infinity
 
     def is_bounded(self) -> bool:
         r"""Return whether the interval is bounded."""
@@ -251,8 +257,8 @@ class Interval(SageObject):
             return self.upper
         if self.is_bounded():
             return (self.lower + self.upper) / 2
-        if self.lower == minus_infinity:
-            if self.upper == Infinity:
+        if self._is_lower_infinite():
+            if self._is_upper_infinite():
                 return 0
             return self.upper - 1
         return self.lower + 1
@@ -297,10 +303,10 @@ class Interval(SageObject):
         if 0 in self:
             return 0
         if self.upper - self.lower > 1 or floor(self.lower) + 1 in self or ceil(self.upper) - 1 in self:
-            if self.lower == minus_infinity:
+            if self._is_lower_infinite():
                 floor_upper = floor(self.upper)
                 return floor_upper if floor_upper in self else floor_upper - 1
-            if self.upper == Infinity:
+            if self._is_upper_infinite():
                 ceil_lower = ceil(self.lower)
                 return ceil_lower if ceil_lower in self else ceil_lower + 1
             if self.lower == 0:
