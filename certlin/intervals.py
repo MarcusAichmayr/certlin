@@ -537,7 +537,7 @@ class Intervals(SageObject):
         return cls([Interval.random(ring) for _ in range(length)])
 
     @classmethod
-    def from_bounds(cls, lower_bounds: list, upper_bounds: list, lower_bounds_closed: bool = True, upper_bounds_closed: bool = True) -> Intervals:
+    def from_bounds(cls, lower: list, upper: list, lower_closed: bool = True, upper_closed: bool = True) -> Intervals:
         r"""
         Return intervals that are determined by bounds.
 
@@ -553,20 +553,15 @@ class Intervals(SageObject):
             sage: Intervals.from_bounds([0, -5, 0], [1, 2, +oo], [True, False, True], [True, True, False])
             [0, 1] x (-5, 2] x [0, +oo)
         """
-        length = len(lower_bounds)
-        if lower_bounds_closed is True:
-            lower_bounds_closed = [True] * length
-        elif lower_bounds_closed is False:
-            lower_bounds_closed = [False] * length
+        length = len(lower)
+        if lower_closed is True:
+            lower_closed = [True] * length
+        elif lower_closed is False:
+            lower_closed = [False] * length
 
-        if upper_bounds_closed is True:
-            upper_bounds_closed = [True] * length
-        elif upper_bounds_closed is False:
-            upper_bounds_closed = [False] * length
+        if upper_closed is True:
+            upper_closed = [True] * length
+        elif upper_closed is False:
+            upper_closed = [False] * length
 
-        return cls([
-            Interval(*bounds)
-            for bounds in zip(
-                lower_bounds, upper_bounds, lower_bounds_closed, upper_bounds_closed
-            )
-        ])
+        return cls([Interval(*bounds) for bounds in zip(lower, upper, lower_closed, upper_closed)])
