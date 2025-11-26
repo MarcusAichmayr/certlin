@@ -58,7 +58,7 @@ Change to the root directory of the repository and run:
 
 The documentation of this package is available on GitHub:
 
-https://marcusaichmayr.github.io/certlin/index.html
+https://marcusaichmayr.github.io/certlin/
 
 To generate it, run
 
