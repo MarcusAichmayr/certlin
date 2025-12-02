@@ -1,5 +1,5 @@
-Documentation of Certlin
-=========================
+Certlin
+=======
 
 To install this SageMath package, visit the `repository on GitHub <https://github.com/MarcusAichmayr/certlin>`_.
 
