@@ -21,7 +21,7 @@ from sage.matrix.constructor import Matrix
 from sage.modules.free_module_element import vector
 from sage.structure.sage_object import SageObject
 
-from elementary_vectors.functions import circuit_generator
+from elementary_vectors.elements import circuit_generator
 
 
 def solve_without_division(matrix: Matrix, rhs: vector) -> vector:
