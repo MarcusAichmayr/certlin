@@ -69,11 +69,11 @@ class LinearInequalitySystem(SageObject):
         (5/2, 5)
         sage: S.find_solution_random() # random
         (5/2, 5)
-        sage: S.certify_nonexistence()
+        sage: S.certify_unsolvability()
         Traceback (most recent call last):
         ...
         ValueError: A solution exists.
-        sage: S.certify_nonexistence_random()
+        sage: S.certify_unsolvability_random()
         Traceback (most recent call last):
         ...
         MaxIterationsReachedError: Maximum number of iterations reached. A solution might exist.
@@ -272,7 +272,7 @@ class LinearInequalitySystem(SageObject):
             return False
         return True
 
-    def certify_nonexistence(self, iteration_limit: int = -1) -> vector:
+    def certify_unsolvability(self, iteration_limit: int = -1) -> vector:
         r"""
         Certify nonexistence of a solution if no solution exists.
 
@@ -291,11 +291,11 @@ class LinearInequalitySystem(SageObject):
         .. SEEALSO::
 
             * :meth:`certify`
-            * :meth:`certify_nonexistence_random`
+            * :meth:`certify_unsolvability_random`
         """
-        return self._certify_nonexistence(random=False, reverse=True, iteration_limit=iteration_limit, stop_event=None)
+        return self._certify_unsolvability(random=False, reverse=True, iteration_limit=iteration_limit, stop_event=None)
 
-    def certify_nonexistence_random(self, iteration_limit: int = 10000) -> vector:
+    def certify_unsolvability_random(self, iteration_limit: int = 10000) -> vector:
         r"""
         Certify nonexistence of a solution using random elementary vectors.
 
@@ -315,11 +315,11 @@ class LinearInequalitySystem(SageObject):
         .. SEEALSO::
 
             * :meth:`certify`
-            * :meth:`certify_nonexistence`
+            * :meth:`certify_unsolvability`
         """
-        return self._certify_nonexistence(random=True, reverse=False, iteration_limit=iteration_limit, stop_event=None)
+        return self._certify_unsolvability(random=True, reverse=False, iteration_limit=iteration_limit, stop_event=None)
 
-    def _certify_nonexistence(self, random: bool, reverse: bool, iteration_limit: int, stop_event) -> vector:
+    def _certify_unsolvability(self, random: bool, reverse: bool, iteration_limit: int, stop_event) -> vector:
         r"""
         Certify nonexistence of a solution.
 
@@ -408,8 +408,8 @@ class LinearInequalitySystem(SageObject):
 
         .. SEEALSO::
 
-            * :meth:`certify_nonexistence`
-            * :meth:`certify_nonexistence_random`
+            * :meth:`certify_unsolvability`
+            * :meth:`certify_unsolvability_random`
             * :meth:`find_solution`
             * :meth:`find_solution_random`
         """
@@ -420,7 +420,7 @@ class LinearInequalitySystem(SageObject):
         stop_event = Manager().Event()
         with ProcessPoolExecutor(max_workers=2) as executor:
             futures = {
-                executor.submit(self._certify_nonexistence, random=random, reverse=True, iteration_limit=iteration_limit, stop_event=stop_event): False,
+                executor.submit(self._certify_unsolvability, random=random, reverse=True, iteration_limit=iteration_limit, stop_event=stop_event): False,
                 executor.submit(self._find_solution, random=random, reverse=False, iteration_limit=iteration_limit, stop_event=stop_event): True,
             }
             for future in as_completed(futures):
@@ -600,9 +600,9 @@ class InhomogeneousSystem(LinearInequalitySystem):
         (False, (1, 0, 1))
         sage: S.certify(random=True)
         (False, (1, 0, 1))
-        sage: S.certify_nonexistence()
+        sage: S.certify_unsolvability()
         (1, 0, 1)
-        sage: S.certify_nonexistence_random() # random
+        sage: S.certify_unsolvability_random() # random
         (1, 0, 1)
 
     Therefore, we cannot find a solution::
