@@ -9,7 +9,7 @@ def readfile(filename):
 
 setup(
     name="certlin",
-    version="1.2",
+    version="1.3",
     description="SageMath package for linear inequality systems and certifying (un)solvability",
     long_description=readfile("README.md"),
     long_description_content_type="text/markdown",
