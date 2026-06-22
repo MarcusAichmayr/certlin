@@ -464,6 +464,9 @@ class Intervals(SageObject):
     def __getitem__(self, i: int) -> Interval:
         return self.intervals[i]
 
+    def __setitem__(self, i: int, interval: Interval) -> None:
+        self.intervals[i] = interval
+
     def _repr_(self) -> str:
         if len(self) == 0:
             return "()"
