@@ -483,6 +483,18 @@ class HomogeneousSystem(LinearInequalitySystem):
         sage: S.dual().certify()
         (False, (-1, -1, 0, -3, 0, 1))
 
+    There is also a method that returns an equivalent homogeneous system by removing the equalities::
+
+        sage: S.without_equalities()
+        [2]  x >  0
+        [1]  x >  0
+        [3]  x >= 0
+        sage: S.dual().without_equalities()
+        [ 1  1]  x >  0
+        [ 2 -1]  x >= 0
+        [-1  2]  x >= 0
+        [-1  0]  x >= 0
+
     TESTS::
 
         sage: from certlin import *
@@ -523,6 +535,15 @@ class HomogeneousSystem(LinearInequalitySystem):
 
     def to_homogeneous(self) -> HomogeneousSystem:
         return self
+
+    def without_equalities(self) -> HomogeneousSystem:
+        r"""Return an equivalent homogeneous system without equalities."""
+        kernel_matrix = self.matrix[self._length_strict + self._length_nonstrict:, :].right_kernel_matrix().T
+        return HomogeneousSystem(
+            self.matrix[:self._length_strict, :] * kernel_matrix,
+            self.matrix[self._length_strict:self._length_strict + self._length_nonstrict, :] * kernel_matrix,
+            Matrix(0, kernel_matrix.ncols())
+        )
 
     def dual(self) -> HomogeneousSystem:
         return HomogeneousSystem(
