@@ -91,8 +91,8 @@ class CombinationsIncluding(SageObject):
         sage: list(reversed(C))
         [[2, 3], [1, 2], [0, 2]]
     """
-    def __init__(self, mset, k, elements=None):
-        self.combinations = Combinations(set(range(mset)) - set(elements), k - len(elements))
+    def __init__(self, n: int, k: int, elements=None):
+        self.combinations = Combinations(set(range(n)) - set(elements), k - len(elements))
         if elements is None:
             self.elements = []
         else:
