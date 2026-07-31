@@ -23,7 +23,9 @@ from typing import Iterator
 from concurrent.futures import ProcessPoolExecutor, as_completed
 from multiprocessing import Manager
 
+from sage.combinat.combination import Combinations
 from sage.matrix.constructor import Matrix, zero_matrix
+from sage.misc.prandom import choice
 from sage.modules.free_module_element import vector, zero_vector
 from sage.rings.infinity import Infinity
 from sage.structure.sage_object import SageObject
@@ -64,9 +66,9 @@ class LinearInequalitySystem(SageObject):
     We check for solvability::
 
         sage: S.certify()
-        (True, (5/2, 5))
+        (True, (2, 5))
         sage: S.find_solution()
-        (5/2, 5)
+        (2, 5)
         sage: S.find_solution_random() # random
         (5/2, 5)
         sage: S.certify_unsolvability()
@@ -222,13 +224,13 @@ class LinearInequalitySystem(SageObject):
             sage: I = Intervals.from_bounds(lower_bounds, upper_bounds, lower_bounds_closed, upper_bounds_closed)
             sage: S = LinearInequalitySystem(M, I)
             sage: S.certify()
-            (True, (5/2, 5))
+            (True, (2, 5))
             sage: S.with_intervals(I).certify()
-            (True, (5/2, 5))
+            (True, (2, 5))
             sage: S.with_intervals(Intervals.from_bounds([2, 6, 0, -oo], [5, oo, 8, 5])).certify()
             (False, (0, 1, 0, -1))
             sage: S.with_intervals(Intervals.from_bounds([2, 5, 0, -oo], [5, 5, 8, 5])).certify()
-            (True, (2, 5))
+            (True, (3, 5))
         """
         system = LinearInequalitySystem(self.matrix, intervals)
         if self.__class__ is LinearInequalitySystem:
@@ -361,7 +363,7 @@ class LinearInequalitySystem(SageObject):
             * :meth:`certify`
             * :meth:`find_solution_random`
         """
-        return self._find_solution(random=False, reverse=False, iteration_limit=iteration_limit, stop_event=None)
+        return self._find_solution(random=False, iteration_limit=iteration_limit, stop_event=None)
 
     def find_solution_random(self, iteration_limit: int = 10000) -> vector:
         r"""
@@ -385,10 +387,10 @@ class LinearInequalitySystem(SageObject):
             * :meth:`certify`
             * :meth:`find_solution`
         """
-        return self._find_solution(random=True, reverse=False, iteration_limit=iteration_limit, stop_event=None)
+        return self._find_solution(random=True, iteration_limit=iteration_limit, stop_event=None)
 
-    def _find_solution(self, random: bool, reverse: bool, iteration_limit: int, stop_event) -> vector:
-        solution = self.to_homogeneous()._find_solution(random=random, reverse=reverse, iteration_limit=iteration_limit, stop_event=stop_event)
+    def _find_solution(self, random: bool, iteration_limit: int, stop_event) -> vector:
+        solution = self.to_homogeneous()._find_solution(random=random, iteration_limit=iteration_limit, stop_event=stop_event)
         return solution[:-1] / solution[-1]
 
     def certify(self, random: bool = False, iteration_limit: int = -1) -> tuple[bool, vector]:
@@ -421,7 +423,7 @@ class LinearInequalitySystem(SageObject):
         with ProcessPoolExecutor(max_workers=2) as executor:
             futures = {
                 executor.submit(self._certify_unsolvability, random=random, reverse=True, iteration_limit=iteration_limit, stop_event=stop_event): False,
-                executor.submit(self._find_solution, random=random, reverse=False, iteration_limit=iteration_limit, stop_event=stop_event): True,
+                executor.submit(self._find_solution, random=random, iteration_limit=iteration_limit, stop_event=stop_event): True,
             }
             for future in as_completed(futures):
                 try:
@@ -564,32 +566,88 @@ class HomogeneousSystem(LinearInequalitySystem):
             return False
         return True
 
-    def _find_solution(self, random: bool, reverse: bool, iteration_limit: int, stop_event) -> vector:
-        return solve_without_division(self.matrix, self._certify_existence(random=random, reverse=reverse, iteration_limit=iteration_limit, stop_event=stop_event))
+    def _find_solution(self, random: bool, iteration_limit: int, stop_event) -> vector:
+        if random:
+            certificate = self._certify_existence_random(iteration_limit=iteration_limit, stop_event=stop_event)
+        else:
+            certificate = self._certify_existence(iteration_limit=iteration_limit, stop_event=stop_event)
+        return solve_without_division(self.matrix, certificate)
 
-    def _certify_existence(self, random: bool, reverse: bool, iteration_limit: int, stop_event=None) -> vector:
-        certificate = zero_vector(self.matrix.base_ring(), self.matrix.nrows())
-
-        if self._length_strict == 0:
-            return certificate
-        for i, v in enumerate(self._evs_generator(kernel=False, random=random, reverse=reverse)):
+    def _certify_existence(self, iteration_limit: int, stop_event) -> vector:
+        n = self._evs.length
+        r = self._evs.rank
+        set_strict = set(range(self._length_strict))
+        set_zero = set(range(self._length_strict + self._length_nonstrict, n))
+        result = zero_vector(self.matrix.base_ring(), n)
+        iteration = 0
+        while set_strict:
+            iteration += 1
             if stop_event is not None and stop_event.is_set():
                 raise ProcessStoppedError("Process was stopped because another process found a certificate for nonexistence.")
-            if iteration_limit != -1 and i >= iteration_limit:
+            if iteration_limit != -1 and iteration >= iteration_limit:
                 raise MaxIterationsReachedError("Maximum number of iterations reached. A solution may not exist.")
-            if v is None:
-                continue
-            for w in [v, -v]:
-                if any(w[i] < 0 for i in range(self._length_strict + self._length_nonstrict)):
+            i = set_strict.pop()
+            for Jc in Combinations(range(i + 1, n), n - r):
+                K = sorted(set(range(n)) - {i} - set(Jc))
+                try:
+                    w = self._evs.cocircuit(K)
+                except ValueError:
                     continue
-                if any(w[i] != 0 for i in range(self._length_strict + self._length_nonstrict, self.matrix.nrows())):
-                    continue
-                certificate += w
-                if all(certificate[i] > 0 for i in range(self._length_strict)):
-                    return certificate
-                break
 
-        raise ValueError("No solution exists.")
+                if w[i] == 0 and all(w[pos] == 0 for pos in set_strict):
+                    continue
+                if any(w[pos] != 0 for pos in set_zero):
+                    continue
+                if all(wi >= 0 for wi in w):
+                    result += w
+                elif all(wi <= 0 for wi in w):
+                    result -= w
+                else:
+                    continue
+                if result[i] > 0 and all(result[j] > 0 for j in set_strict):
+                    return result
+            if result[i] <= 0:
+                raise ValueError(f"No solution exists. There is no nonnegative cocircuit with positive component {i}.")
+        return result
+
+    def _certify_existence_random(self, iteration_limit: int, stop_event):
+        n = self._evs.length
+        r = self._evs.rank
+        list_strict = list(range(self._length_strict))
+        set_zero = set(range(self._length_strict + self._length_nonstrict, n))
+        result = zero_vector(self.matrix.base_ring(), n)
+        considered_K = set()
+        iteration = 0
+        while True:
+            iteration += 1
+            if not list_strict:
+                return result
+            if stop_event is not None and stop_event.is_set():
+                raise ProcessStoppedError("Process was stopped because another process found a certificate for nonexistence.")
+            if iteration_limit != -1 and iteration >= iteration_limit:
+                raise MaxIterationsReachedError("Maximum number of iterations reached. A solution may not exist.")
+            K = Combinations(set(range(n)) - {choice(list_strict)}, r - 1).random_element()
+            if frozenset(K) in considered_K:
+                continue
+            considered_K.add(frozenset(K))
+
+            try:
+                w = self._evs.cocircuit(K)
+            except ValueError:
+                continue
+
+            if all(w[pos] == 0 for pos in list_strict):
+                continue
+            if any(w[pos] != 0 for pos in set_zero):
+                continue
+            if all(wi >= 0 for wi in w):
+                result += w
+            elif all(wi <= 0 for wi in w):
+                result -= w
+            else:
+                continue
+
+            list_strict = [i for i in list_strict if result[i] <= 0]
 
 
 class InhomogeneousSystem(LinearInequalitySystem):
@@ -631,7 +689,7 @@ class InhomogeneousSystem(LinearInequalitySystem):
         sage: S.find_solution()
         Traceback (most recent call last):
         ...
-        ValueError: No solution exists.
+        ValueError: No solution exists. There is no nonnegative cocircuit with positive component 0.
         sage: S.find_solution_random()
         Traceback (most recent call last):
         ...
