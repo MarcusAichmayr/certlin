@@ -244,7 +244,7 @@ class LinearInequalitySystem(SageObject):
         return system
 
     def _evs_generator(self, kernel: bool = True, random: bool = False, reverse: bool = False) -> Iterator[vector]:
-        r"""Return a generator of elementary vectors."""
+        r"""Return a generator of circuits."""
         if random:
             while True:
                 yield self._evs.random_circuit() if kernel else self._evs.random_cocircuit()
@@ -305,7 +305,7 @@ class LinearInequalitySystem(SageObject):
 
     def certify_unsolvability_random(self, iteration_limit: int = 10000) -> vector:
         r"""
-        Certify nonexistence of a solution using random elementary vectors.
+        Certify nonexistence of a solution using random circuits.
 
         INPUT:
 
@@ -357,7 +357,7 @@ class LinearInequalitySystem(SageObject):
         - ``iteration_limit`` -- maximum number of iterations (by default unlimited).
 
         OUTPUT:
-        A vector (as a sum of elementary vectors) solving the system.
+        A vector (as a sum of circuits) solving the system.
 
         .. NOTE::
 
@@ -373,14 +373,14 @@ class LinearInequalitySystem(SageObject):
 
     def find_solution_random(self, iteration_limit: int = 10000) -> vector:
         r"""
-        Compute a solution using random elementary vectors.
+        Compute a solution using random circuits.
 
         INPUT:
 
         - ``iteration_limit`` -- maximum number of iterations (by default 10000). If -1, unlimited.
 
         OUTPUT:
-        A vector (as a sum of elementary vectors) solving the system.
+        A vector (as a sum of circuits) solving the system.
 
         .. NOTE::
 
@@ -407,7 +407,7 @@ class LinearInequalitySystem(SageObject):
 
         INPUT:
 
-        - ``random`` -- if true, elementary vectors are generated randomly
+        - ``random`` -- if true, circuits are generated randomly
         - ``iteration_limit`` -- maximum number of iterations for each process (by default unlimited)
 
         OUTPUT:
