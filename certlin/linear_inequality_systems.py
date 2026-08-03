@@ -71,6 +71,8 @@ class LinearInequalitySystem(SageObject):
         (2, 5)
         sage: S.find_solution_random() # random
         (5/2, 5)
+        sage: S.is_solution(vector([5/2, 5]))
+        True
         sage: S.certify_unsolvability()
         Traceback (most recent call last):
         ...
@@ -143,6 +145,10 @@ class LinearInequalitySystem(SageObject):
 
     def _compute_intervals(self) -> Intervals:
         raise NotImplementedError("This method should be implemented in subclasses.")
+
+    def is_solution(self, x: vector) -> bool:
+        r"""Check if a vector is a solution of the system."""
+        return self.matrix * x in self.intervals
 
     def to_homogeneous(self) -> HomogeneousSystem:
         r"""Return the equivalent homogeneous system."""
