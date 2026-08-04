@@ -582,18 +582,18 @@ class HomogeneousSystem(LinearInequalitySystem):
     def _certify_existence(self, iteration_limit: int, stop_event) -> vector:
         n = self._evs.length
         r = self._evs.rank
-        set_strict = set(range(self._length_strict))
+        list_strict = list(range(self._length_strict))
         range_positive = range(self._length_strict + self._length_nonstrict)
-        set_zero = set(range(self._length_strict + self._length_nonstrict, n))
+        list_zero = list(range(self._length_strict + self._length_nonstrict, n))
         result = zero_vector(self.matrix.base_ring(), n)
         iteration = 0
-        while set_strict:
+        while list_strict:
             iteration += 1
             if stop_event is not None and stop_event.is_set():
                 raise ProcessStoppedError("Process was stopped because another process found a certificate for nonexistence.")
             if iteration_limit != -1 and iteration >= iteration_limit:
                 raise MaxIterationsReachedError("Maximum number of iterations reached. A solution may not exist.")
-            i = set_strict.pop()
+            i = list_strict.pop(0)
             for Jc in Combinations(range(i + 1, n), n - r):
                 K = sorted(set(range(n)) - {i} - set(Jc))
                 try:
@@ -601,9 +601,9 @@ class HomogeneousSystem(LinearInequalitySystem):
                 except ValueError:
                     continue
 
-                if w[i] == 0 and all(w[pos] == 0 for pos in set_strict):
+                if w[i] == 0 and all(w[pos] == 0 for pos in list_strict):
                     continue
-                if any(w[pos] != 0 for pos in set_zero):
+                if any(w[pos] != 0 for pos in list_zero):
                     continue
                 if all(w[pos] >= 0 for pos in range_positive):
                     result += w
@@ -611,7 +611,7 @@ class HomogeneousSystem(LinearInequalitySystem):
                     result -= w
                 else:
                     continue
-                if result[i] > 0 and all(result[j] > 0 for j in set_strict):
+                if result[i] > 0 and all(result[j] > 0 for j in list_strict):
                     return result
             if result[i] == 0:
                 raise ValueError(f"No solution exists. There is no nonnegative cocircuit with positive component {i}.")
@@ -622,7 +622,7 @@ class HomogeneousSystem(LinearInequalitySystem):
         r = self._evs.rank
         list_strict = list(range(self._length_strict))
         range_positive = range(self._length_strict + self._length_nonstrict)
-        set_zero = set(range(self._length_strict + self._length_nonstrict, n))
+        list_zero = list(range(self._length_strict + self._length_nonstrict, n))
         result = zero_vector(self.matrix.base_ring(), n)
         considered_K = set()
         iteration = 0
@@ -642,7 +642,7 @@ class HomogeneousSystem(LinearInequalitySystem):
             except ValueError:
                 continue
 
-            if any(w[pos] != 0 for pos in set_zero):
+            if any(w[pos] != 0 for pos in list_zero):
                 continue
             if all(w[pos] == 0 for pos in list_strict):
                 continue
