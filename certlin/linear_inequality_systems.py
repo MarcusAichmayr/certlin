@@ -583,6 +583,7 @@ class HomogeneousSystem(LinearInequalitySystem):
         n = self._evs.length
         r = self._evs.rank
         set_strict = set(range(self._length_strict))
+        range_positive = range(self._length_strict + self._length_nonstrict)
         set_zero = set(range(self._length_strict + self._length_nonstrict, n))
         result = zero_vector(self.matrix.base_ring(), n)
         iteration = 0
@@ -604,15 +605,15 @@ class HomogeneousSystem(LinearInequalitySystem):
                     continue
                 if any(w[pos] != 0 for pos in set_zero):
                     continue
-                if all(wi >= 0 for wi in w):
+                if all(w[pos] >= 0 for pos in range_positive):
                     result += w
-                elif all(wi <= 0 for wi in w):
+                elif all(w[pos] <= 0 for pos in range_positive):
                     result -= w
                 else:
                     continue
                 if result[i] > 0 and all(result[j] > 0 for j in set_strict):
                     return result
-            if result[i] <= 0:
+            if result[i] == 0:
                 raise ValueError(f"No solution exists. There is no nonnegative cocircuit with positive component {i}.")
         return result
 
@@ -620,6 +621,7 @@ class HomogeneousSystem(LinearInequalitySystem):
         n = self._evs.length
         r = self._evs.rank
         list_strict = list(range(self._length_strict))
+        range_positive = range(self._length_strict + self._length_nonstrict)
         set_zero = set(range(self._length_strict + self._length_nonstrict, n))
         result = zero_vector(self.matrix.base_ring(), n)
         considered_K = set()
@@ -640,18 +642,18 @@ class HomogeneousSystem(LinearInequalitySystem):
             except ValueError:
                 continue
 
-            if all(w[pos] == 0 for pos in list_strict):
-                continue
             if any(w[pos] != 0 for pos in set_zero):
                 continue
-            if all(wi >= 0 for wi in w):
+            if all(w[pos] == 0 for pos in list_strict):
+                continue
+            if all(w[pos] >= 0 for pos in range_positive):
                 result += w
-            elif all(wi <= 0 for wi in w):
+            elif all(w[pos] <= 0 for pos in range_positive):
                 result -= w
             else:
                 continue
 
-            list_strict = [i for i in list_strict if result[i] <= 0]
+            list_strict = [i for i in list_strict if result[i] == 0]
         return result
 
 
