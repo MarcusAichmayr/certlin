@@ -624,10 +624,8 @@ class HomogeneousSystem(LinearInequalitySystem):
         result = zero_vector(self.matrix.base_ring(), n)
         considered_K = set()
         iteration = 0
-        while True:
+        while list_strict:
             iteration += 1
-            if not list_strict:
-                return result
             if stop_event is not None and stop_event.is_set():
                 raise ProcessStoppedError("Process was stopped because another process found a certificate for nonexistence.")
             if iteration_limit != -1 and iteration >= iteration_limit:
@@ -654,6 +652,7 @@ class HomogeneousSystem(LinearInequalitySystem):
                 continue
 
             list_strict = [i for i in list_strict if result[i] <= 0]
+        return result
 
 
 class InhomogeneousSystem(LinearInequalitySystem):
