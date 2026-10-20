@@ -101,7 +101,7 @@ class CombinationsIncluding(SageObject):
     def __iter__(self) -> Iterator[list]:
         for combination in self.combinations:
             yield sorted(list(self.elements) + combination)
-    
+
     def __reversed__(self) -> Iterator[list]:
         for combination in reversed(self.combinations):
             yield sorted(list(self.elements) + combination)
